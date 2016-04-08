@@ -53,8 +53,8 @@ def main():
     errortotalprev = 0
     filechecker(DIRECTORY_POSTS)
     if os.path.exists(FILENAME_JSONSCORE):
-        with open(FILENAME_JSONSCORE, 'r') as f:
-            errortotalprev = json.load(f)
+        with open(FILENAME_JSONSCORE, 'r') as scorefile:
+            errortotalprev = json.load(scorefile)
     passed = linechecker(errortotalprev, pwl, filenameslist, filecheck, wordswrong, spellcheck, FILENAME_JSONSCORE)
     filecheck.close()
     wordswrong.close()
