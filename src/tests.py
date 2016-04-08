@@ -4,7 +4,6 @@ from tempfile import TemporaryFile
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, URLFilter
 from funct import checkline
-from funct import filechecker
 
 class TestFuncts(unittest.TestCase):
 
