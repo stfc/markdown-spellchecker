@@ -5,13 +5,15 @@ import os.path
 import re
 import logging
 
+
 def filechecker(DIRECTORY_POSTS):
     if os.listdir('.') == []:
         print('Please put Prevscore.json in the location of this file.')
         return
     if os.listdir(DIRECTORY_POSTS) == []:
-        print ('No .md files to evaluate')
+        print('No .md files to evaluate')
         return
+
 
 def checkline(line, filename, icodeblock, spellcheck, pwl, wordswrong):
     regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
@@ -36,6 +38,7 @@ def checkline(line, filename, icodeblock, spellcheck, pwl, wordswrong):
                 print('Failed word: ', err.word)
     return error
 
+
 def checkfile(filename, pwl, filecheck, wordswrong, spellcheck,):
     error = 0
     icodeblock = False
@@ -46,6 +49,7 @@ def checkfile(filename, pwl, filecheck, wordswrong, spellcheck,):
     filecheck.write('%d errors in total in %s\n' % (error, filename))
     return error
 
+
 def linechecker(errortotalprev, pwl, filenameslist, filecheck, wordswrong, spellcheck, FILENAME_JSONSCORE):
     errortotal = 0
     for filename in filenameslist:
@@ -55,7 +59,7 @@ def linechecker(errortotalprev, pwl, filenameslist, filecheck, wordswrong, spell
 
 
 def errortotalfunct(errortotal, errortotalprev, FILENAME_JSONSCORE):
-    print ('Errors in total: ', errortotal)
+    print('Errors in total: ', errortotal)
     if errortotal <= errortotalprev:
         print('Pass. you scored better or equal to the last check')
         with open(FILENAME_JSONSCORE, 'w') as outfile:
