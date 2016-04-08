@@ -49,12 +49,9 @@ def checkfile(filename, pwl, filecheck, wordswrong, spellcheck,):
     return error
 
 def linechecker(errortotalprev, pwl, filenameslist, filecheck, wordswrong, spellcheck, FILENAME_JSONSCORE):
-
-    logger = logging.getLogger('markdown-spellchecker')
     errortotal = 0
     for filename in filenameslist:
         errortotal += checkfile(filename, pwl, filecheck, wordswrong, spellcheck)
-
 
     return errortotalfunct(errortotal, errortotalprev, FILENAME_JSONSCORE)
 
