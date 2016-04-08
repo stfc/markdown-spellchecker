@@ -1,5 +1,4 @@
 import os
-import enchant
 import codecs
 import json
 import os.path
