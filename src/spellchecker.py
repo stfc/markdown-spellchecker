@@ -35,7 +35,7 @@ else:
     sys.exit(2)
 # add words to the dictionary used to test for spelling errors
 spellcheck = SpellChecker("en_GB", filters=[URLFilter, EmailFilter])
-filenameslist = glob.glob(os.path.join(DIRECTORY_POSTS,"*.md"))
+filenameslist = glob.glob(os.path.join(DIRECTORY_POSTS, "*.md"))
 wordswrong = open(CONFIGFILE['DEFAULT']['Wordswrongfile'], "w+")
 # creates/opens a file to save the words that were spelt wrong
 filecheck = open(CONFIGFILE['DEFAULT']['Filecheck'], "w+")
