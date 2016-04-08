@@ -13,4 +13,4 @@ engines:
 
 ratings:
    paths:
-   - "_tests/*.py"
+   - "src/*.py"
