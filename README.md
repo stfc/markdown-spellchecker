@@ -1,6 +1,8 @@
 Markdown Spellchecker
 =====================
 
+[![Code Climate](https://codeclimate.com/github/stfc/markdown-spellchecker/badges/gpa.svg)](https://codeclimate.com/github/stfc/markdown-spellchecker)
+
 What is it?
 * This program is a spellchecker made in python to check .md documents for spelling errors outside of code.
 
