@@ -11,19 +11,19 @@ What is needed for this?
 Why use it?
 * It dosent check words inside of codeblocks.
 * It can also have technical words added to the PWL exclude them from the spellcheck.
-* It also dosent check the code inside of HTML tags. 
+* It also dosent check the code inside of HTML tags.
 
 How to install?
-* 
-* 
+*
+*
 
 What is the PWL?
-* PWL is the personal word list. 
-* It is used to store words that the dictionary would say are spelt wrong. 
+* PWL is the personal word list.
+* It is used to store words that the dictionary would say are spelt wrong.
 * to exclude a word add it to "dict.txt" which you can specify what its called as long as you change it in the config.
 
 How to configure it?
-* Go into "config.ini" 
+* Go into "config.ini"
 * you can change where it finds the the documents to check.
 * the personal word list.
 * the name of the text file it creates to tell you which files its checked.
