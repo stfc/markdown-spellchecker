@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -e # halt script on error
 
-python3 src/spellchecker.py
+cd src
+python tests.py
