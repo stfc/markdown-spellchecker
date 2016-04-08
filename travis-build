@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
 set -e # halt script on error
 
-bundle exec jekyll build
-bundle exec htmlproofer --check-html ./_site
-python3 _tests/spellchecker.py
+python3 src/spellchecker.py
