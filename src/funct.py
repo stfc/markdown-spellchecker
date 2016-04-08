@@ -20,14 +20,14 @@ def checkline(line, filename, icodeblock, spellcheck, pwl, wordswrong):
     logger = logging.getLogger('markdown-spellchecker')
     logger.info('now checking file %s', filename)
     error = 0
-    skipline = False # defaults to not skip line
+    skipline = False  # defaults to not skip line
     if line.startswith('```') or line == '---':
         icodeblock = not icodeblock
     if icodeblock:
         skipline = True
     if not icodeblock and not skipline:
-        htmldirty = regexhtmldirty.sub('', line) # strips code between < >
-        cleanhtml = regexhtmlclean.sub('', htmldirty) # strips code between ` `
+        htmldirty = regexhtmldirty.sub('', line)  # strips code between < >
+        cleanhtml = regexhtmlclean.sub('', htmldirty)  # strips code between ` `
         spellcheck.set_text(cleanhtml)
         for err in spellcheck:
             logger.debug("'%s' not found in main dictionary", err.word)
