@@ -5,7 +5,6 @@ import json
 import os.path
 import re
 import logging
-import json
 
 def filechecker(DIRECTORY_POSTS):
     if os.listdir('.') == []:
