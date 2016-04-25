@@ -38,7 +38,7 @@ class MarkSpelling(object):
                 if not self.pwl.check(err.word):
                     error += 1
                     self.wordswrong.write('%s in %s\n' % (err.word, filename))
-                    print('Failed word: ', err.word)
+                    self.logger.debug('Failed word: %s', err.word)
         return error
 
 
@@ -48,7 +48,7 @@ class MarkSpelling(object):
         linelist = codecs.open(filename, 'r', encoding='UTF-8').readlines()
         for line in linelist:
             error += self.checkline(line, filename, icodeblock)
-        print(error, ' errors in total in ', filename)
+        self.logger.info('%d errors in total in %s', error, filename)
         self.filecheck.write('%d errors in total in %s\n' % (error, filename))
         return error
 
