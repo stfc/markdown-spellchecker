@@ -53,6 +53,7 @@ def main():
     if not os.path.isabs(filename_pwl):
         filename_pwl = os.path.join(directory_self, filename_pwl)
 
+    pwl = None
     if os.path.exists(filename_pwl):
         logger.debug("PWL file exists")
         pwl = enchant.request_pwl_dict(filename_pwl)
