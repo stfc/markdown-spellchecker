@@ -68,7 +68,7 @@ def main():
             errortotalprev = json.load(scorefile)
     except FileNotFoundError:
         logger.warning('JSON score file "%s" was not found', filename_jsonscore)
-    mspell = MarkSpelling(pwl, errortotalprev)
+    mspell = MarkSpelling(pwl, config.get('DEFAULT', 'spelling_language'), errortotalprev)
     errortotal = mspell.checkfilelist(filenameslist)
     passed = errortotalfunct(errortotal, errortotalprev, filename_jsonscore)
     if not passed:
