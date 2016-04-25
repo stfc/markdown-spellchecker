@@ -8,13 +8,10 @@ class MarkSpelling(object):
     Code snippets and in-line HTML will be excluded from checks.
     """
 
-    def __init__(self, DIRECTORY_POSTS, spellcheck, pwl, filecheck, wordswrong, errortotalprev = 0):
+    def __init__(self, spellcheck, pwl, errortotalprev = 0):
         self.logger = getLogger('markdown-spellchecker')
-        self.DIRECTORY_POSTS = DIRECTORY_POSTS
         self.spellcheck = spellcheck
         self.pwl = pwl
-        self.filecheck = filecheck
-        self.wordswrong = wordswrong
         self.errortotalprev = errortotalprev
         self.errortotal = 0
 
@@ -37,8 +34,7 @@ class MarkSpelling(object):
                 self.logger.debug("'%s' not found in main dictionary", err.word)
                 if not self.pwl.check(err.word):
                     error += 1
-                    self.wordswrong.write('%s in %s\n' % (err.word, filename))
-                    self.logger.debug('Failed word: %s', err.word)
+                    self.logger.info('Failed word "%s" in %s', err.word, filename)
         return error
 
 
@@ -49,7 +45,6 @@ class MarkSpelling(object):
         for line in linelist:
             error += self.checkline(line, filename, icodeblock)
         self.logger.info('%d errors in total in %s', error, filename)
-        self.filecheck.write('%d errors in total in %s\n' % (error, filename))
         return error
 
 
