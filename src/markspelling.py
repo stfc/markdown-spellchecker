@@ -1,6 +1,8 @@
 import codecs
 import re
 from logging import getLogger
+from enchant.checker import SpellChecker
+from enchant.tokenize import EmailFilter, URLFilter
 
 class MarkSpelling(object):
     """
@@ -8,9 +10,9 @@ class MarkSpelling(object):
     Code snippets and in-line HTML will be excluded from checks.
     """
 
-    def __init__(self, spellcheck, pwl, errortotalprev=0):
+    def __init__(self, pwl, language='en_GB', errortotalprev=0):
         self.logger = getLogger('markdown-spellchecker')
-        self.spellcheck = spellcheck
+        self.spellcheck = SpellChecker(language, filters=[URLFilter, EmailFilter])
         self.pwl = pwl
         self.errortotalprev = errortotalprev
         self.errortotal = 0

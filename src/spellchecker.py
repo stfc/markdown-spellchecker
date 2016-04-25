@@ -4,8 +4,6 @@ import enchant
 import os.path
 import configparser
 import json
-from enchant.checker import SpellChecker
-from enchant.tokenize import EmailFilter, URLFilter
 import sys
 import logging
 from markspelling import MarkSpelling
@@ -70,8 +68,7 @@ def main():
     if os.path.exists(filename_jsonscore):
         with open(filename_jsonscore, 'r') as scorefile:
             errortotalprev = json.load(scorefile)
-    spellcheck = SpellChecker("en_GB", filters=[URLFilter, EmailFilter])
-    mspell = MarkSpelling(spellcheck, pwl, errortotalprev)
+    mspell = MarkSpelling(pwl, errortotalprev)
     errortotal = mspell.checkfilelist(filenameslist)
     passed = errortotalfunct(errortotal, errortotalprev, filename_jsonscore)
     if not passed:
