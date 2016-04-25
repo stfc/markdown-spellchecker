@@ -48,8 +48,6 @@ def main():
     filename_jsonscore = config.get('DEFAULT', 'file_state')
     if not os.path.isabs(filename_jsonscore):
         filename_jsonscore = os.path.join(directory_self, filename_jsonscore)
-    if not os.path.exists(filename_jsonscore):
-        logger.warning('Please put Prevscore.json in the location of this file.')
 
     filename_pwl = config['DEFAULT']['personal_word_list']
     if not os.path.isabs(filename_pwl):
@@ -65,9 +63,11 @@ def main():
     filenameslist = glob.glob(os.path.join(directory_posts, "*.md"))
 
     errortotalprev = 0
-    if os.path.exists(filename_jsonscore):
+    try:
         with open(filename_jsonscore, 'r') as scorefile:
             errortotalprev = json.load(scorefile)
+    except FileNotFoundError:
+        logger.warning('JSON score file "%s" was not found', filename_jsonscore)
     mspell = MarkSpelling(pwl, errortotalprev)
     errortotal = mspell.checkfilelist(filenameslist)
     passed = errortotalfunct(errortotal, errortotalprev, filename_jsonscore)
