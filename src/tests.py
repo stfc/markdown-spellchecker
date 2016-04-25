@@ -3,7 +3,7 @@ import enchant
 from tempfile import TemporaryFile
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, URLFilter
-from funct import checkline
+from markspelling import checkline
 
 class TestFuncts(unittest.TestCase):
 

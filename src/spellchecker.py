@@ -7,8 +7,8 @@ import json
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, URLFilter
 import sys
-from funct import filechecker
-from funct import linechecker
+from markspelling import filechecker
+from markspelling import linechecker
 DIRECTORY_TESTS = os.path.dirname(os.path.realpath(__file__))
 CONFIGFILE = configparser.ConfigParser()
 CONFIGFILECOMPLETEPATH = os.path.join(DIRECTORY_TESTS, 'config.ini')
