@@ -9,22 +9,27 @@ from enchant.tokenize import EmailFilter, URLFilter
 import sys
 from markspelling import MarkSpelling
 
-DIRECTORY_TESTS = os.path.dirname(os.path.realpath(__file__))
-CONFIGFILE = configparser.ConfigParser()
-CONFIGFILECOMPLETEPATH = os.path.join(DIRECTORY_TESTS, 'config.ini')
-CONFIGFILE.read(CONFIGFILECOMPLETEPATH)
-CONFIGFILE.read(DIRECTORY_TESTS, 'config.ini')
-DEFAULTCONFIGFILE = CONFIGFILE['DEFAULT']
-DIRECTORY_ROOT = os.path.dirname(DIRECTORY_TESTS)
-DIRECTORY_POSTS = os.path.join(DIRECTORY_ROOT, DEFAULTCONFIGFILE['Filestocheckdir'])
-FILENAME_JSONSCORE = DEFAULTCONFIGFILE['Prevscore']
-FILENAME_PWL = DEFAULTCONFIGFILE['PWL']
-if not os.path.isabs(FILENAME_JSONSCORE):
-    FILENAME_JSONSCORE = os.path.join(DIRECTORY_TESTS, DEFAULTCONFIGFILE['Prevscore'])
-if not os.path.isabs(FILENAME_PWL):
-    FILENAME_PWL = os.path.join(DIRECTORY_TESTS, DEFAULTCONFIGFILE['PWL'])
+DIRECTORY_SELF = os.path.dirname(os.path.realpath(__file__))
+DIRECTORY_ROOT = os.path.dirname(DIRECTORY_SELF)
 
-print(DIRECTORY_POSTS)
+CONFIG = configparser.ConfigParser()
+CONFIG.read(os.path.join(DIRECTORY_SELF, 'config.ini'))
+DEFAULTCONFIGFILE = CONFIG['DEFAULT']
+
+DIRECTORY_POSTS = os.path.join(DIRECTORY_ROOT, DEFAULTCONFIGFILE['Filestocheckdir'])
+if os.listdir(DIRECTORY_POSTS) == []:
+    print('No .md files to evaluate')
+
+FILENAME_JSONSCORE = DEFAULTCONFIGFILE['Prevscore']
+if not os.path.isabs(FILENAME_JSONSCORE):
+    FILENAME_JSONSCORE = os.path.join(DIRECTORY_SELF, DEFAULTCONFIGFILE['Prevscore'])
+if not os.path.exists(FILENAME_JSONSCORE):
+    print('Please put Prevscore.json in the location of this file.')
+
+FILENAME_PWL = DEFAULTCONFIGFILE['PWL']
+if not os.path.isabs(FILENAME_PWL):
+    FILENAME_PWL = os.path.join(DIRECTORY_SELF, DEFAULTCONFIGFILE['PWL'])
+
 if os.path.exists(FILENAME_PWL):
     print("PWL file exists")
     pwl = enchant.request_pwl_dict(FILENAME_PWL)
@@ -33,13 +38,11 @@ if os.path.exists(FILENAME_PWL):
 else:
     print("PWL file does not exist")
     sys.exit(2)
-# add words to the dictionary used to test for spelling errors
-spellcheck = SpellChecker("en_GB", filters=[URLFilter, EmailFilter])
+
 filenameslist = glob.glob(os.path.join(DIRECTORY_POSTS, "*.md"))
-wordswrong = open(CONFIGFILE['DEFAULT']['Wordswrongfile'], "w+")
-# creates/opens a file to save the words that were spelt wrong
-filecheck = open(CONFIGFILE['DEFAULT']['Filecheck'], "w+")
-# creates/opens a file to save the files that were checked
+wordswrong = open(CONFIG['DEFAULT']['Wordswrongfile'], "w+") # Log of incorrectly spelt words
+filecheck = open(CONFIG['DEFAULT']['Filecheck'], "w+") # Log of files that were checked
+
 
 def errortotalfunct(errortotal, errortotalprev):
     print('Errors in total: ', errortotal)
@@ -61,6 +64,7 @@ def main():
     if os.path.exists(FILENAME_JSONSCORE):
         with open(FILENAME_JSONSCORE, 'r') as scorefile:
             errortotalprev = json.load(scorefile)
+    spellcheck = SpellChecker("en_GB", filters=[URLFilter, EmailFilter])
     mspell = MarkSpelling(DIRECTORY_POSTS, spellcheck, pwl, filecheck, wordswrong, errortotalprev)
     errortotal = mspell.checkfilelist(filenameslist)
     passed = errortotalfunct(errortotal, errortotalprev)
