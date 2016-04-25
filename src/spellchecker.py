@@ -7,13 +7,13 @@ import json
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, URLFilter
 import sys
-from logger import getLogger
+from logging import getLogger
 from markspelling import MarkSpelling
 
 
 def errortotalfunct(errortotal, errortotalprev, filename_jsonscore):
     logger = getLogger('markdown-spellchecker')
-    logger.info('Errors in total: ', errortotal)
+    logger.info('Errors in total: %d', errortotal)
     if errortotal <= errortotalprev:
         logger.info('Pass. you scored better or equal to the last check')
         with open(filename_jsonscore, 'w') as outfile:
@@ -35,24 +35,23 @@ def main():
 
     config = configparser.ConfigParser()
     config.read(os.path.join(directory_self, 'config.ini'))
-    defaultconfigfile = config['DEFAULT']
 
-    directory_posts = os.path.join(directory_root, defaultconfigfile['Filestocheckdir'])
+    directory_posts = os.path.join(directory_root, config['DEFAULT']['directory_source'])
     if os.listdir(directory_posts) == []:
         logger.error('No .md files to evaluate')
 
-    filename_jsonscore = defaultconfigfile['Prevscore']
+    filename_jsonscore = config['DEFAULT']['file_state']
     if not os.path.isabs(filename_jsonscore):
-        filename_jsonscore = os.path.join(directory_self, defaultconfigfile['Prevscore'])
+        filename_jsonscore = os.path.join(directory_self, filename_jsonscore)
     if not os.path.exists(filename_jsonscore):
         logger.warning('Please put Prevscore.json in the location of this file.')
 
-    filename_pwl = defaultconfigfile['PWL']
+    filename_pwl = config['DEFAULT']['personal_word_list']
     if not os.path.isabs(filename_pwl):
-        filename_pwl = os.path.join(directory_self, defaultconfigfile['PWL'])
+        filename_pwl = os.path.join(directory_self, filename_pwl)
 
     if os.path.exists(filename_pwl):
-        logger.verbose("PWL file exists")
+        logger.debug("PWL file exists")
         pwl = enchant.request_pwl_dict(filename_pwl)
     else:
         logger.error("PWL file does not exist")
