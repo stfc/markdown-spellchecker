@@ -8,7 +8,7 @@ class MarkSpelling(object):
     Code snippets and in-line HTML will be excluded from checks.
     """
 
-    def __init__(self, spellcheck, pwl, errortotalprev = 0):
+    def __init__(self, spellcheck, pwl, errortotalprev=0):
         self.logger = getLogger('markdown-spellchecker')
         self.spellcheck = spellcheck
         self.pwl = pwl
