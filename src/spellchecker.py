@@ -7,8 +7,8 @@ import json
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, URLFilter
 import sys
-from markspelling import filechecker
-from markspelling import linechecker
+from markspelling import MarkSpelling
+
 DIRECTORY_TESTS = os.path.dirname(os.path.realpath(__file__))
 CONFIGFILE = configparser.ConfigParser()
 CONFIGFILECOMPLETEPATH = os.path.join(DIRECTORY_TESTS, 'config.ini')
@@ -44,11 +44,12 @@ filecheck = open(CONFIGFILE['DEFAULT']['Filecheck'], "w+")
 
 def main():
     errortotalprev = 0
-    filechecker(DIRECTORY_POSTS)
+    mspell = MarkSpelling()
+    mspell.filechecker(DIRECTORY_POSTS)
     if os.path.exists(FILENAME_JSONSCORE):
         with open(FILENAME_JSONSCORE, 'r') as scorefile:
             errortotalprev = json.load(scorefile)
-    passed = linechecker(errortotalprev, pwl, filenameslist, filecheck, wordswrong, spellcheck, FILENAME_JSONSCORE)
+    passed = mspell.linechecker(errortotalprev, pwl, filenameslist, filecheck, wordswrong, spellcheck, FILENAME_JSONSCORE)
     filecheck.close()
     wordswrong.close()
     if not passed:
