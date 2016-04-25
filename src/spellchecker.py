@@ -41,15 +41,29 @@ wordswrong = open(CONFIGFILE['DEFAULT']['Wordswrongfile'], "w+")
 filecheck = open(CONFIGFILE['DEFAULT']['Filecheck'], "w+")
 # creates/opens a file to save the files that were checked
 
+def errortotalfunct(errortotal, errortotalprev):
+    print('Errors in total: ', errortotal)
+    if errortotal <= errortotalprev:
+        print('Pass. you scored better or equal to the last check')
+        with open(FILENAME_JSONSCORE, 'w') as outfile:
+            json.dump(errortotal, outfile)
+            return True
+    else:
+        print('Fail. try harder next time')
+        with open(FILENAME_JSONSCORE, 'w') as outfile:
+            # saves errortotal to json file for future use
+            json.dump(errortotal, outfile)
+            return False
+
 
 def main():
     errortotalprev = 0
-    mspell = MarkSpelling()
-    mspell.filechecker(DIRECTORY_POSTS)
     if os.path.exists(FILENAME_JSONSCORE):
         with open(FILENAME_JSONSCORE, 'r') as scorefile:
             errortotalprev = json.load(scorefile)
-    passed = mspell.linechecker(errortotalprev, pwl, filenameslist, filecheck, wordswrong, spellcheck, FILENAME_JSONSCORE)
+    mspell = MarkSpelling(DIRECTORY_POSTS, spellcheck, pwl, filecheck, wordswrong, errortotalprev)
+    errortotal = mspell.checkfilelist(filenameslist)
+    passed = errortotalfunct(errortotal, errortotalprev)
     filecheck.close()
     wordswrong.close()
     if not passed:

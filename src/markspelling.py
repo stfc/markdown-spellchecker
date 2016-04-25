@@ -1,9 +1,6 @@
-import os
 import codecs
-import json
-import os.path
 import re
-import logging
+from logging import getLogger
 
 class MarkSpelling(object):
     """
@@ -11,24 +8,21 @@ class MarkSpelling(object):
     Code snippets and in-line HTML will be excluded from checks.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, DIRECTORY_POSTS, spellcheck, pwl, filecheck, wordswrong, errortotalprev = 0):
+        self.logger = getLogger('markdown-spellchecker')
+        self.DIRECTORY_POSTS = DIRECTORY_POSTS
+        self.spellcheck = spellcheck
+        self.pwl = pwl
+        self.filecheck = filecheck
+        self.wordswrong = wordswrong
+        self.errortotalprev = errortotalprev
+        self.errortotal = 0
 
 
-    def filechecker(self, DIRECTORY_POSTS):
-        if os.listdir('.') == []:
-            print('Please put Prevscore.json in the location of this file.')
-            return
-        if os.listdir(DIRECTORY_POSTS) == []:
-            print('No .md files to evaluate')
-            return
-
-
-    def checkline(self, line, filename, icodeblock, spellcheck, pwl, wordswrong):
+    def checkline(self, line, filename, icodeblock):
         regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
         regexhtmlclean = re.compile(r'\`.*?\`')
-        logger = logging.getLogger('markdown-spellchecker')
-        logger.info('now checking file %s', filename)
+        self.logger.info('now checking file %s', filename)
         error = 0
         skipline = False  # defaults to not skip line
         if line.startswith('```') or line == '---':
@@ -38,45 +32,29 @@ class MarkSpelling(object):
         if not icodeblock and not skipline:
             htmldirty = regexhtmldirty.sub('', line)  # strips code between < >
             cleanhtml = regexhtmlclean.sub('', htmldirty)  # strips code between ` `
-            spellcheck.set_text(cleanhtml)
-            for err in spellcheck:
-                logger.debug("'%s' not found in main dictionary", err.word)
-                if not pwl.check(err.word):
+            self.spellcheck.set_text(cleanhtml)
+            for err in self.spellcheck:
+                self.logger.debug("'%s' not found in main dictionary", err.word)
+                if not self.pwl.check(err.word):
                     error += 1
-                    wordswrong.write('%s in %s\n' % (err.word, filename))
+                    self.wordswrong.write('%s in %s\n' % (err.word, filename))
                     print('Failed word: ', err.word)
         return error
 
 
-    def checkfile(self, filename, pwl, filecheck, wordswrong, spellcheck,):
+    def checkfile(self, filename):
         error = 0
         icodeblock = False
         linelist = codecs.open(filename, 'r', encoding='UTF-8').readlines()
         for line in linelist:
-            error += self.checkline(line, filename, icodeblock, spellcheck, pwl, wordswrong)
+            error += self.checkline(line, filename, icodeblock)
         print(error, ' errors in total in ', filename)
-        filecheck.write('%d errors in total in %s\n' % (error, filename))
+        self.filecheck.write('%d errors in total in %s\n' % (error, filename))
         return error
 
 
-    def linechecker(self, errortotalprev, pwl, filenameslist, filecheck, wordswrong, spellcheck, FILENAME_JSONSCORE):
-        errortotal = 0
+    def checkfilelist(self, filenameslist):
         for filename in filenameslist:
-            errortotal += self.checkfile(filename, pwl, filecheck, wordswrong, spellcheck)
+            self.errortotal += self.checkfile(filename)
 
-        return self.errortotalfunct(errortotal, errortotalprev, FILENAME_JSONSCORE)
-
-
-    def errortotalfunct(self, errortotal, errortotalprev, FILENAME_JSONSCORE):
-        print('Errors in total: ', errortotal)
-        if errortotal <= errortotalprev:
-            print('Pass. you scored better or equal to the last check')
-            with open(FILENAME_JSONSCORE, 'w') as outfile:
-                json.dump(errortotal, outfile)
-                return True
-        else:
-            print('Fail. try harder next time')
-            with open(FILENAME_JSONSCORE, 'w') as outfile:
-                # saves errortotal to json file for future use
-                json.dump(errortotal, outfile)
-                return False
+        return self.errortotal
