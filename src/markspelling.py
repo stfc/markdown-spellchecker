@@ -34,10 +34,9 @@ class MarkSpelling(object):
             self.spellcheck.set_text(cleanhtml)
             for err in self.spellcheck:
                 self.logger.debug("'%s' not found in main dictionary", err.word)
-                if self.pwl:
-                    if not self.pwl.check(err.word):
-                        error += 1
-                        self.logger.info('Failed word "%s" in %s', err.word, filename)
+                if not self.pwl or not self.pwl.check(err.word):
+                    error += 1
+                    self.logger.info('Failed word "%s" in %s', err.word, filename)
         return error
 
 
