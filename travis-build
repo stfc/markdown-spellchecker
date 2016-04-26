@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 set -e # halt script on error
 
-cd src
-python3 tests.py
+python3-coverage run src/tests.py

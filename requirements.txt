@@ -1,2 +1,3 @@
 SpellChecker
 pyenchant
+coverage

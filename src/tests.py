@@ -72,8 +72,8 @@ class TestFuncts(unittest.TestCase):
         """Test that spelling errors are not flagged by inline HTML"""
         pwl = enchant.request_pwl_dict('dict.txt')
         markspell = MarkSpelling(pwl)
-        self.assertEqual(markspell.checkline('Test some <strong>inline html</strong>', 'filename.txt', False), 0)
-        self.assertEqual(markspell.checkline('Check <i>spelling witihn inline html</i>', 'filename.txt', False), 1)
+        self.assertEqual(markspell.checkline('Test some <strong>in-line html</strong>', 'filename.txt', False), 0)
+        self.assertEqual(markspell.checkline('Check <i>spelling witihn in-line html</i>', 'filename.txt', False), 1)
 
 
     def test_checkline_html_mistake(self):
