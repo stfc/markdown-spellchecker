@@ -69,11 +69,11 @@ def verifydirectorysource(path):
     logger = logging.getLogger('markdown-spellchecker')
     if not os.path.exists(path):
         logger.error('Source directory "%s" does not exist', path)
-        sys.exit(1)
-
+        return False
     if os.listdir(path) == []:
         logger.error('No .md files to evaluate')
-        sys.exit(1)
+        return False
+    return True
 
 
 def loadpwl(filename):
@@ -104,7 +104,8 @@ def main():
     personal_word_list = abspath(config.get('DEFAULT', 'personal_word_list'))
     spelling_language = config.get('DEFAULT', 'spelling_language')
 
-    verifydirectorysource(directory_source)
+    if not verifydirectorysource(directory_source):
+        sys.exit(1)
 
     pwl = loadpwl(personal_word_list)
 

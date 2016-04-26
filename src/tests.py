@@ -16,7 +16,9 @@
 
 import unittest
 import logging
-from spellchecker import abspath
+import tempfile
+from os import rmdir
+from spellchecker import abspath, verifydirectorysource, getfilenameslist
 from markspelling import MarkSpelling
 
 
@@ -109,6 +111,20 @@ class TestFuncts(unittest.TestCase):
     def test_checkfilelist(self):
         """Check a list of example files"""
         self.assertEqual(self.markspell.checkfilelist([abspath('testfile.md')]), 0)
+
+    def test_checkdirectoryandfiles(self):
+        directory = tempfile.mkdtemp()
+        files = [tempfile.NamedTemporaryFile(dir=directory, suffix='.md') for _ in range(0, 10)]
+        filenames = [f.name for f in files]
+        filenames.sort()
+        try:
+            self.assertTrue(verifydirectorysource(directory))
+            gotfilenames = getfilenameslist(directory)
+            gotfilenames.sort()
+            self.assertEqual(gotfilenames, filenames)
+        finally:
+            del files
+            rmdir(directory)
 
 if __name__ == '__main__':
     unittest.main()
