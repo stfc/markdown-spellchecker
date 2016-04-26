@@ -9,7 +9,7 @@ addons:
 
 # Assume bundler is being used, therefore
 # the `install` step will run `bundle install` by default.
-script: ./travis-build
+script: coverage3 run --source=src src/tests.py
 
 after_success: coveralls
 
