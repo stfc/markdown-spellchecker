@@ -10,6 +10,22 @@ import logging
 from markspelling import MarkSpelling
 
 
+def configurelogger(config):
+    log_format = '%(levelname)6s: %(message)s'
+    log_level = logging.INFO
+    log_file = ''
+
+    if config.getboolean('DEFAULT', 'log_debug'):
+        log_level = logging.DEBUG
+
+    if config.getboolean('DEFAULT', 'log_to_file'):
+        log_file = abspath('spellchecker.log')
+
+    logging.basicConfig(level=log_level, format=log_format, filename=log_file)
+
+    return logging.getLogger('markdown-spellchecker')
+
+
 def errortotalfunct(errortotal, errortotalprev, file_state):
     logger = logging.getLogger('markdown-spellchecker')
     logger.info('Errors in total: %d', errortotal)
@@ -34,46 +50,50 @@ def abspath(path):
     return path
 
 
+def verifydirectorysource(path):
+    logger = logging.getLogger('markdown-spellchecker')
+    if not os.path.exists(path):
+        logger.error('Source directory "%s" does not exist', path)
+        sys.exit(1)
+
+    if os.listdir(path) == []:
+        logger.error('No .md files to evaluate')
+        sys.exit(1)
+
+
+def loadpwl(filename):
+    logger = logging.getLogger('markdown-spellchecker')
+    if os.path.exists(filename):
+        logger.debug('PWL file found')
+        pwl = enchant.request_pwl_dict(filename)
+        logger.debug('PWL file loaded')
+        return pwl
+    else:
+        logger.error('PWL file "%s" does not exist', filename)
+        sys.exit(1)
+    return None
+
+
+def getfilenameslist(path):
+    return glob.glob(os.path.join(path, "*.md"))
+
+
 def main():
     config = configparser.ConfigParser()
     config.read(abspath('config.ini'))
 
-    log_format = '%(levelname)6s: %(message)s'
-    log_level = logging.INFO
-    log_file = ''
-
-    if config.getboolean('DEFAULT', 'log_debug'):
-        log_level = logging.DEBUG
-
-    if config.getboolean('DEFAULT', 'log_to_file'):
-        log_file = abspath('spellchecker.log')
-
-    logging.basicConfig(level=log_level, format=log_format, filename=log_file)
-
-    logger = logging.getLogger('markdown-spellchecker')
+    logger = configurelogger(config)
 
     directory_source = abspath(config.get('DEFAULT', 'directory_source'))
     file_state = abspath(config.get('DEFAULT', 'file_state'))
     personal_word_list = abspath(config.get('DEFAULT', 'personal_word_list'))
     spelling_language = config.get('DEFAULT', 'spelling_language')
 
-    if not os.path.exists(directory_source):
-        logger.error('Source directory "%s" does not exist', directory_source)
-        sys.exit(1)
+    verifydirectorysource(directory_source)
 
-    if os.listdir(directory_source) == []:
-        logger.error('No .md files to evaluate')
-        sys.exit(1)
+    pwl = loadpwl(personal_word_list)
 
-    pwl = None
-    if os.path.exists(personal_word_list):
-        logger.debug("PWL file exists")
-        pwl = enchant.request_pwl_dict(personal_word_list)
-    else:
-        logger.error("PWL file does not exist")
-        sys.exit(1)
-
-    filenameslist = glob.glob(os.path.join(directory_source, "*.md"))
+    filenameslist = getfilenameslist(directory_source)
 
     errortotalprev = 0
     try:
@@ -81,6 +101,7 @@ def main():
             errortotalprev = json.load(scorefile)
     except FileNotFoundError:
         logger.warning('JSON score file "%s" was not found', file_state)
+
     mspell = MarkSpelling(pwl, spelling_language, errortotalprev)
     errortotal = mspell.checkfilelist(filenameslist)
     passed = errortotalfunct(errortotal, errortotalprev, file_state)
