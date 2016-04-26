@@ -17,3 +17,6 @@ engines:
 ratings:
    paths:
    - "src/*.py"
+
+exclude_paths:
+  - "src/tests.py"
