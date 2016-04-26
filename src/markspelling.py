@@ -17,36 +17,44 @@ class MarkSpelling(object):
         self.pwl = pwl
         self.errortotalprev = errortotalprev
         self.errortotal = 0
+        self.regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
+        self.regexhtmlclean = re.compile(r'\`.*?\`')
 
-    def checkline(self, line, filename, icodeblock):
-        regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
-        regexhtmlclean = re.compile(r'\`.*?\`')
-        self.logger.debug('Checking file %s', filename)
-        error = 0
-        skipline = False  # defaults to not skip line
+    def checkcodeblock(self, line, incodeblock):
         if line.startswith('```') or line == '---':
-            icodeblock = not icodeblock
-        if icodeblock:
-            skipline = True
-        if not icodeblock and not skipline:
-            htmldirty = regexhtmldirty.sub('', line)  # strip html tags
-            cleanhtml = regexhtmlclean.sub('', htmldirty)  # strip inline code
-            self.spellcheck.set_text(cleanhtml)
+            return not incodeblock
+        return incodeblock
+
+    def checkline(self, line, filename, incodeblock=False):
+        line = line.strip()
+        error = 0
+        wasincodeblock = incodeblock
+        incodeblock = self.checkcodeblock(line, incodeblock)
+        if not wasincodeblock and not incodeblock:
+            self.logger.debug('Checking line "%s"', line.rstrip())
+            line = self.regexhtmldirty.sub('', line)  # strip html tags
+            line = self.regexhtmlclean.sub('', line)  # strip inline code
+            self.spellcheck.set_text(line)
             for err in self.spellcheck:
                 self.logger.debug("'%s' not found in main dictionary", err.word)
                 if not self.pwl or not self.pwl.check(err.word):
                     error += 1
                     self.logger.info('Failed word "%s" in %s', err.word, filename)
-        return error
+        else:
+            self.logger.debug('Skipping line "%s"', line.rstrip())
+
+        return (error, incodeblock)
 
     def checkfile(self, filename):
-        error = 0
-        icodeblock = False
+        self.logger.debug('Checking file "%s"', filename)
+        fileerrors = 0
+        incodeblock = False
         linelist = codecs.open(filename, 'r', encoding='UTF-8').readlines()
         for line in linelist:
-            error += self.checkline(line, filename, icodeblock)
-        self.logger.info('%d errors in total in %s', error, filename)
-        return error
+            (lineerrors, incodeblock) = self.checkline(line, filename, incodeblock)
+            fileerrors += lineerrors
+        self.logger.info('%d errors in total in %s', fileerrors, filename)
+        return fileerrors
 
     def checkfilelist(self, filenameslist):
         for filename in filenameslist:
