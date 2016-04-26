@@ -24,49 +24,64 @@ class TestFuncts(unittest.TestCase):
 
     def test_checkline_no_errors(self):
         """Correctly spelt lines should return no errors"""
-        self.assertEqual(self.markspell.checkline('Lots of words that are spelt correctly!', 'filename.txt', False), (0, False))
+        self.assertEqual(self.markspell.checkline('Lots of words that are spelt correctly!', False), (0, False))
 
     def test_checkline_one_error(self):
         """Test line with a single spelling error"""
-        self.assertEqual(self.markspell.checkline('One word that is spelt icnorrectly!', 'filename.txt', False), (1, False))
+        self.assertEqual(self.markspell.checkline('One word that is spelt icnorrectly!', False), (1, False))
 
     def test_checkline_multi_error(self):
         """Test line with a multiple spelling errors"""
-        self.assertEqual(self.markspell.checkline('Lts of wrods thta are splet icnorrectly!', 'filename.txt', False), (5, False))
+        self.assertEqual(self.markspell.checkline('Lts of wrods thta are splet icnorrectly!', False), (5, False))
 
     def test_checkline_code_block_good(self):
         """Test line with no spelling errors inside a block of code"""
-        self.assertEqual(self.markspell.checkline('Lots of words that are spelt correctly!', 'filename.txt', True), (0, True))
+        self.assertEqual(self.markspell.checkline('Lots of words that are spelt correctly!', True), (0, True))
 
     def test_checkline_code_block_mistake(self):
         """Test that spelling errors are ignored inside a block of code"""
-        self.assertEqual(self.markspell.checkline('Lots of wrods that are spelt icnorrectly!', 'filename.txt', True), (0, True))
+        self.assertEqual(self.markspell.checkline('Lots of wrods that are spelt icnorrectly!', True), (0, True))
 
     def test_checkline_code_block_detection(self):
         """Check that code blocks are correctly identified"""
-        self.assertEqual(self.markspell.checkline('---', 'JekyllFrontMatterOpen', False), (0, True))
-        self.assertEqual(self.markspell.checkline('---', 'JekyllFrontMatterClose', True), (0, False))
-        self.assertEqual(self.markspell.checkline('```sh', 'GFMCodeBlockOpen', False), (0, True))
-        self.assertEqual(self.markspell.checkline('```', 'GFMCodeBlockClose', True), (0, False))
+        # Jekyll front matter
+        self.assertEqual(self.markspell.checkline('---', False), (0, True))
+        self.assertEqual(self.markspell.checkline('---', True), (0, False))
+        # Github flavoured markdown code blocks
+        self.assertEqual(self.markspell.checkline('```sh', False), (0, True))
+        self.assertEqual(self.markspell.checkline('```', True), (0, False))
 
     def test_checkline_backtick_good(self):
         """Test that spelling errors are not flagged by inline code snippets"""
-        self.assertEqual(self.markspell.checkline('This is an example of `code within backticks`', 'filename.txt', False), (0, False))
+        self.assertEqual(self.markspell.checkline('This is an example of `code within backticks`', False), (0, False))
 
     def test_checkline_backtick_mistake(self):
         """Test that spelling errors are ignored within inline code snippets"""
-        self.assertEqual(self.markspell.checkline('This is a example of `typso niside backtciks`', 'filename.txt', False), (0, False))
-        self.assertEqual(self.markspell.checkline('Outside `backtciks` speeling is still improtant', 'filename.txt', False), (2, False))
+        self.assertEqual(self.markspell.checkline('This is a example of `typso niside backtciks`', False), (0, False))
+        self.assertEqual(self.markspell.checkline('Outside `backtciks` speeling is still improtant', False), (2, False))
 
     def test_checkline_html_good(self):
         """Test that spelling errors are not flagged by inline HTML"""
-        self.assertEqual(self.markspell.checkline('Test some <strong>in-line HTML</strong>', 'filename.txt', False), (0, False))
-        self.assertEqual(self.markspell.checkline('Check <i>spelling witihn in-line HTML</i>', 'filename.txt', False), (1, False))
+        self.assertEqual(self.markspell.checkline('Test some <strong>in-line HTML</strong>', False), (0, False))
+        self.assertEqual(self.markspell.checkline('Check <i>spelling witihn in-line HTML</i>', False), (1, False))
 
     def test_checkline_html_mistake(self):
         """Test that spelling errors are ignored within inline HTML"""
-        self.assertEqual(self.markspell.checkline('Ignore <asd>bad tags</fgh>', 'filename.txt', False), (0, False))
-        self.assertEqual(self.markspell.checkline('Evrething <qwe>esle mattters</rty>', 'filename.txt', False), (3, False))
+        self.assertEqual(self.markspell.checkline('Ignore <asd>bad tags</fgh>', False), (0, False))
+        self.assertEqual(self.markspell.checkline('Evrething <qwe>esle mattters</rty>', False), (3, False))
+
+    def test_checklinelist(self):
+        """Check a list of lines for correct behaviour"""
+        lines = [
+            'Correct spelling is important in documentation.',
+            '',
+            '```python',
+            '    # But not necesssatily in blcoks of code!',
+            '```',
+            '',
+            'Woohps.',
+        ]
+        self.assertEqual(self.markspell.checklinelist(lines), 1)
 
 if __name__ == '__main__':
     unittest.main()

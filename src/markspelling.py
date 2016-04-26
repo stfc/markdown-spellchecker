@@ -25,9 +25,9 @@ class MarkSpelling(object):
             return not incodeblock
         return incodeblock
 
-    def checkline(self, line, filename, incodeblock=False):
+    def checkline(self, line, incodeblock=False):
         line = line.strip()
-        error = 0
+        errorcount = 0
         wasincodeblock = incodeblock
         incodeblock = self.checkcodeblock(line, incodeblock)
         if not wasincodeblock and not incodeblock:
@@ -38,21 +38,25 @@ class MarkSpelling(object):
             for err in self.spellcheck:
                 self.logger.debug("'%s' not found in main dictionary", err.word)
                 if not self.pwl or not self.pwl.check(err.word):
-                    error += 1
-                    self.logger.info('Failed word "%s" in %s', err.word, filename)
+                    errorcount += 1
+                    self.logger.info('Failed word "%s"', err.word)
         else:
             self.logger.debug('Skipping line "%s"', line.rstrip())
 
-        return (error, incodeblock)
+        return (errorcount, incodeblock)
+
+    def checklinelist(self, linelist):
+        errorcount = 0
+        incodeblock = False
+        for line in linelist:
+            (lineerrors, incodeblock) = self.checkline(line, incodeblock)
+            errorcount += lineerrors
+        return errorcount
 
     def checkfile(self, filename):
         self.logger.debug('Checking file "%s"', filename)
-        fileerrors = 0
-        incodeblock = False
-        linelist = codecs.open(filename, 'r', encoding='UTF-8').readlines()
-        for line in linelist:
-            (lineerrors, incodeblock) = self.checkline(line, filename, incodeblock)
-            fileerrors += lineerrors
+        lines = codecs.open(filename, 'r', encoding='UTF-8').readlines()
+        fileerrors = self.checklinelist(lines)
         self.logger.info('%d errors in total in %s', fileerrors, filename)
         return fileerrors
 
