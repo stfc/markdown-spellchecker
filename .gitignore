@@ -2,3 +2,5 @@ _site
 *~
 Gemfile.lock
 __pycache__/
+.coverage
+_posts
