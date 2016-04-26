@@ -4,6 +4,7 @@ from logging import getLogger
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, URLFilter
 
+
 class MarkSpelling(object):
     """
     Instances of MarkSpelling can be used to spell check documentation written in Markdown.
@@ -17,7 +18,6 @@ class MarkSpelling(object):
         self.errortotalprev = errortotalprev
         self.errortotal = 0
 
-
     def checkline(self, line, filename, icodeblock):
         regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
         regexhtmlclean = re.compile(r'\`.*?\`')
@@ -29,8 +29,8 @@ class MarkSpelling(object):
         if icodeblock:
             skipline = True
         if not icodeblock and not skipline:
-            htmldirty = regexhtmldirty.sub('', line)  # strips code between < >
-            cleanhtml = regexhtmlclean.sub('', htmldirty)  # strips code between ` `
+            htmldirty = regexhtmldirty.sub('', line)  # strip html tags
+            cleanhtml = regexhtmlclean.sub('', htmldirty)  # strip inline code
             self.spellcheck.set_text(cleanhtml)
             for err in self.spellcheck:
                 self.logger.debug("'%s' not found in main dictionary", err.word)
@@ -38,7 +38,6 @@ class MarkSpelling(object):
                     error += 1
                     self.logger.info('Failed word "%s" in %s', err.word, filename)
         return error
-
 
     def checkfile(self, filename):
         error = 0
@@ -48,7 +47,6 @@ class MarkSpelling(object):
             error += self.checkline(line, filename, icodeblock)
         self.logger.info('%d errors in total in %s', error, filename)
         return error
-
 
     def checkfilelist(self, filenameslist):
         for filename in filenameslist:
