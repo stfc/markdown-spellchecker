@@ -21,7 +21,7 @@ class MarkSpelling(object):
     def checkline(self, line, filename, icodeblock):
         regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
         regexhtmlclean = re.compile(r'\`.*?\`')
-        self.logger.info('now checking file %s', filename)
+        self.logger.debug('Checking file %s', filename)
         error = 0
         skipline = False  # defaults to not skip line
         if line.startswith('```') or line == '---':
