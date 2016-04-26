@@ -55,8 +55,10 @@ class MarkSpelling(object):
 
     def checkfile(self, filename):
         self.logger.debug('Checking file "%s"', filename)
-        lines = codecs.open(filename, 'r', encoding='UTF-8').readlines()
-        fileerrors = self.checklinelist(lines)
+        fileerrors = 0
+        with codecs.open(filename, 'r', encoding='UTF-8') as markdownfile:
+            lines = markdownfile.readlines()
+            fileerrors = self.checklinelist(lines)
         self.logger.info('%d errors in total in %s', fileerrors, filename)
         return fileerrors
 
