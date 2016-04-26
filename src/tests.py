@@ -1,4 +1,5 @@
 import unittest
+import logging
 from spellchecker import abspath
 from markspelling import MarkSpelling
 
@@ -8,6 +9,8 @@ class TestFuncts(unittest.TestCase):
 
     def setUp(self):
         """Create a shared markspell instance to use for testing"""
+        logging.basicConfig(level=logging.WARNING, format='%(levelname)6s: %(message)s')
+        self.logger = logging.getLogger('markdown-spellchecker')
         self.markspell = MarkSpelling(None)
 
     def test_abspath(self):
@@ -82,6 +85,10 @@ class TestFuncts(unittest.TestCase):
             'Woohps.',
         ]
         self.assertEqual(self.markspell.checklinelist(lines), 1)
+
+    def test_checkfile(self):
+        """Check an example file"""
+        self.assertEqual(self.markspell.checkfile(abspath('testfile.md')), 0)
 
 if __name__ == '__main__':
     unittest.main()
