@@ -38,14 +38,19 @@ def main():
     config = configparser.ConfigParser()
     config.read(abspath('config.ini'))
 
-    logger = logging.getLogger('markdown-spellchecker')
+    log_format = '%(levelname)6s: %(message)s'
+    log_level = logging.INFO
+    log_file = ''
 
-    logger.setLevel = logging.INFO
     if config.getboolean('DEFAULT', 'log_debug'):
-        logger.setLevel = logging.DEBUG
+        log_level = logging.DEBUG
 
     if config.getboolean('DEFAULT', 'log_to_file'):
-        logging.basicConfig(filename=abspath('spellchecker.log'))
+        log_file = abspath('spellchecker.log')
+
+    logging.basicConfig(level=log_level, format=log_format, filename=log_file)
+
+    logger = logging.getLogger('markdown-spellchecker')
 
     directory_source = abspath(config.get('DEFAULT', 'directory_source'))
     file_state = abspath(config.get('DEFAULT', 'file_state'))
