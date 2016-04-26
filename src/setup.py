@@ -30,7 +30,7 @@ setup(
     author='Science & Technology Facilities Council',
     author_email='enquiries@stfc.ac.uk',
     py_modules=['markspelling'],
-    data_files=[('/etc/markdown-spellchecker/', ['src/config.ini'])],
-    scripts=['src/spellchecker.py'],
+    data_files=[('/etc/markdown-spellchecker/', ['config.ini'])],
+    scripts=['spellchecker.py'],
     url='http://www.scd.stfc.ac.uk/'
 )
