@@ -1,3 +1,4 @@
 SpellChecker
 pyenchant
 coverage
+coveralls

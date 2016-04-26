@@ -11,6 +11,8 @@ addons:
 # the `install` step will run `bundle install` by default.
 script: ./travis-build
 
+after_success: coveralls
+
 # branch whitelist, only for GitHub Pages
 branches:
   only:

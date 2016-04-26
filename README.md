@@ -3,6 +3,7 @@ Markdown Spellchecker
 
 [![Code Climate](https://codeclimate.com/github/stfc/markdown-spellchecker/badges/gpa.svg)](https://codeclimate.com/github/stfc/markdown-spellchecker)
 [![Build Status](https://travis-ci.org/stfc/markdown-spellchecker.svg?branch=master)](https://travis-ci.org/stfc/markdown-spellchecker)
+[![Coverage Status](https://coveralls.io/repos/github/stfc/markdown-spellchecker/badge.svg?branch=master)](https://coveralls.io/github/stfc/markdown-spellchecker?branch=master)
 
 What is it?
 * This program is a spellchecker made in python to check .md documents for spelling errors outside of code.
