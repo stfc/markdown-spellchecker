@@ -55,6 +55,7 @@ def main():
     directory_source = abspath(config.get('DEFAULT', 'directory_source'))
     file_state = abspath(config.get('DEFAULT', 'file_state'))
     personal_word_list = abspath(config.get('DEFAULT', 'personal_word_list'))
+    spelling_language = config.get('DEFAULT', 'spelling_language')
 
     if not os.path.exists(directory_source):
         logger.error('Source directory "%s" does not exist', directory_source)
@@ -80,7 +81,7 @@ def main():
             errortotalprev = json.load(scorefile)
     except FileNotFoundError:
         logger.warning('JSON score file "%s" was not found', file_state)
-    mspell = MarkSpelling(pwl, config.get('DEFAULT', 'spelling_language'), errortotalprev)
+    mspell = MarkSpelling(pwl, spelling_language, errortotalprev)
     errortotal = mspell.checkfilelist(filenameslist)
     passed = errortotalfunct(errortotal, errortotalprev, file_state)
     if not passed:
