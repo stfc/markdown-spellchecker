@@ -63,8 +63,8 @@ class TestFuncts(unittest.TestCase):
     def test_checkline_html_good(self):
         """Test that spelling errors are not flagged by inline HTML"""
         markspell = MarkSpelling(None)
-        self.assertEqual(markspell.checkline('Test some <strong>in-line html</strong>', 'filename.txt', False), 0)
-        self.assertEqual(markspell.checkline('Check <i>spelling witihn in-line html</i>', 'filename.txt', False), 1)
+        self.assertEqual(markspell.checkline('Test some <strong>in-line HTML</strong>', 'filename.txt', False), 0)
+        self.assertEqual(markspell.checkline('Check <i>spelling witihn in-line HTML</i>', 'filename.txt', False), 1)
 
 
     def test_checkline_html_mistake(self):
