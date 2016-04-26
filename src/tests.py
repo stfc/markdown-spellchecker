@@ -88,7 +88,9 @@ class TestFuncts(unittest.TestCase):
 
     def test_checkfile(self):
         """Check an example file"""
+        self.logger.setLevel(logging.DEBUG)
         self.assertEqual(self.markspell.checkfile(abspath('testfile.md')), 0)
+        self.logger.setLevel(logging.WARNING)
 
 if __name__ == '__main__':
     unittest.main()
