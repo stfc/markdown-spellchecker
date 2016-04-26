@@ -90,5 +90,9 @@ class TestFuncts(unittest.TestCase):
         """Check an example file"""
         self.assertEqual(self.markspell.checkfile(abspath('testfile.md')), 0)
 
+    def test_checkfilelist(self):
+        """Check a list of example files"""
+        self.assertEqual(self.markspell.checkfilelist([abspath('testfile.md')]), 0)
+
 if __name__ == '__main__':
     unittest.main()
