@@ -100,7 +100,7 @@ def main():
     args = parser.parse_args()
 
     if not args.paths:
-        sys.exit(2)
+        sys.exit(0)
 
     config = configparser.ConfigParser()
     config.read(abspath('config.ini'))
