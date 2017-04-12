@@ -41,9 +41,11 @@ class MarkSpelling(object):
 
     def checkline(self, line, linenumber, filename, incodeblock=False):
         line = line.strip()
+        errorline = line
         errorcount = 0
         wasincodeblock = incodeblock
         incodeblock = self.checkcodeblock(line, incodeblock)
+        errorwords = list()
         if not wasincodeblock and not incodeblock:
             self.logger.debug('Checking line "%s"', line.rstrip())
             line = self.regexhtmldirty.sub('', line)  # strip html tags
@@ -53,9 +55,14 @@ class MarkSpelling(object):
                 self.logger.debug("'%s' not found in main dictionary", err.word)
                 if not self.pwl or not self.pwl.check(err.word):
                     errorcount += 1
-                    self.logger.error('%s:%s "%s"', filename, linenumber, err.word)
+                    errorwords.append(err.word)
         else:
             self.logger.debug('Skipping line "%s"', line.rstrip())
+
+        for word in errorwords:
+            errorline = errorline.replace(word, '\033[1;31m' + word + '\033[30m')
+
+        self.logger.error('%s:%4d |%s', filename, linenumber, '\033[1;30m' + errorline + '\033[0m')
 
         return (errorcount, incodeblock)
 
