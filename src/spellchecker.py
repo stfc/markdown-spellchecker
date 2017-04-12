@@ -26,12 +26,15 @@ import argparse
 from markspelling import MarkSpelling
 
 
-def configurelogger(config):
+def configurelogger(config, args):
     log_format = '%(levelname)6s: %(message)s'
     log_level = logging.INFO
     log_file = ''
 
     if config.getboolean('DEFAULT', 'log_debug'):
+        log_level = logging.DEBUG
+
+    if args.debug:
         log_level = logging.DEBUG
 
     if config.getboolean('DEFAULT', 'log_to_file'):
@@ -44,18 +47,14 @@ def configurelogger(config):
 
 def errortotalfunct(errortotal, errortotalprev, file_state):
     logger = logging.getLogger('markdown-spellchecker')
-    logger.info('Errors in total: %d', errortotal)
+    logger.info('Number of spelling errors: %d', errortotal)
+    logger.info('Threshold for failure: %d', errortotalprev)
     if errortotal <= errortotalprev:
-        logger.info('Pass. you scored better or equal to the last check')
-        with open(file_state, 'w') as outfile:
-            json.dump(errortotal, outfile)
-            return True
+        logger.info('Pass.')
+        return True
     else:
-        logger.error('Fail. try harder next time')
-        with open(file_state, 'w') as outfile:
-            # saves errortotal to json file for future use
-            json.dump(errortotal, outfile)
-            return False
+        logger.error('Failed.')
+        return False
 
 
 def abspath(path):
@@ -96,32 +95,44 @@ def getfilenameslist(path):
 
 def main():
     parser = argparse.ArgumentParser(description='Processes Markdown documents for spellchecking')
+    parser.add_argument('--debug', action='store_true', help='Enable debug logging.')
     parser.add_argument('paths', metavar='PATH', type=str, nargs='*', help='Paths of files to check.')
     args = parser.parse_args()
+
     if not args.paths:
-        sys.exit(2)
+        sys.exit(0)
 
     config = configparser.ConfigParser()
     config.read(abspath('config.ini'))
 
-    logger = configurelogger(config)
+    logger = configurelogger(config, args)
 
     file_state = abspath(config.get('DEFAULT', 'file_state'))
+    check_state = bool(config.get('DEFAULT', 'check_state'))
     personal_word_list = abspath(config.get('DEFAULT', 'personal_word_list'))
     spelling_language = config.get('DEFAULT', 'spelling_language')
 
     pwl = loadpwl(personal_word_list)
 
     errortotalprev = 0
-    try:
-        with open(file_state, 'r') as scorefile:
-            errortotalprev = json.load(scorefile)
-    except FileNotFoundError:
-        logger.warning('JSON score file "%s" was not found', file_state)
+    if check_state:
+        try:
+            with open(file_state, 'r') as scorefile:
+                errortotalprev = json.load(scorefile)
+        except FileNotFoundError:
+            logger.warning('JSON score file "%s" was not found', file_state)
+    else:
+        file_state = None
 
     mspell = MarkSpelling(pwl, spelling_language, errortotalprev)
     errortotal = mspell.checkfilelist(args.paths)
     passed = errortotalfunct(errortotal, errortotalprev, file_state)
+
+    if check_state and file_state:
+        # Save errortotal to json file for future use
+        with open(file_state, 'w') as outfile:
+            json.dump(errortotal, outfile)
+
     if not passed:
         sys.exit(1)
 
