@@ -26,12 +26,15 @@ import argparse
 from markspelling import MarkSpelling
 
 
-def configurelogger(config):
+def configurelogger(config, args):
     log_format = '%(levelname)6s: %(message)s'
     log_level = logging.INFO
     log_file = ''
 
     if config.getboolean('DEFAULT', 'log_debug'):
+        log_level = logging.DEBUG
+
+    if args.debug:
         log_level = logging.DEBUG
 
     if config.getboolean('DEFAULT', 'log_to_file'):
@@ -92,6 +95,7 @@ def getfilenameslist(path):
 
 def main():
     parser = argparse.ArgumentParser(description='Processes Markdown documents for spellchecking')
+    parser.add_argument('--debug', action='store_true', help='Enable debug logging.')
     parser.add_argument('paths', metavar='PATH', type=str, nargs='*', help='Paths of files to check.')
     args = parser.parse_args()
 
@@ -101,7 +105,7 @@ def main():
     config = configparser.ConfigParser()
     config.read(abspath('config.ini'))
 
-    logger = configurelogger(config)
+    logger = configurelogger(config, args)
 
     file_state = abspath(config.get('DEFAULT', 'file_state'))
     check_state = bool(config.get('DEFAULT', 'check_state'))
