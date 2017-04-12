@@ -39,7 +39,7 @@ class MarkSpelling(object):
             return not incodeblock
         return incodeblock
 
-    def checkline(self, line, incodeblock=False):
+    def checkline(self, line, linenumber, incodeblock=False):
         line = line.strip()
         errorcount = 0
         wasincodeblock = incodeblock
@@ -53,7 +53,7 @@ class MarkSpelling(object):
                 self.logger.debug("'%s' not found in main dictionary", err.word)
                 if not self.pwl or not self.pwl.check(err.word):
                     errorcount += 1
-                    self.logger.info('Failed word "%s"', err.word)
+                    self.logger.info('%s : "%s"', linenumber, err.word)
         else:
             self.logger.debug('Skipping line "%s"', line.rstrip())
 
@@ -62,8 +62,8 @@ class MarkSpelling(object):
     def checklinelist(self, linelist):
         errorcount = 0
         incodeblock = False
-        for line in linelist:
-            (lineerrors, incodeblock) = self.checkline(line, incodeblock)
+        for linenumber, line in enumerate(linelist):
+            (lineerrors, incodeblock) = self.checkline(line, linenumber, incodeblock)
             errorcount += lineerrors
         return errorcount
 

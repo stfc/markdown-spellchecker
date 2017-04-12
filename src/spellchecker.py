@@ -22,6 +22,7 @@ import configparser
 import json
 import sys
 import logging
+import argparse
 from markspelling import MarkSpelling
 
 
@@ -94,22 +95,22 @@ def getfilenameslist(path):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Processes Markdown documents for spellchecking')
+    parser.add_argument('paths', metavar='PATH', type=str, nargs='*', help='Paths of files to check.')
+    args = parser.parse_args()
+    if not args.paths:
+        sys.exit(2)
+
     config = configparser.ConfigParser()
     config.read(abspath('config.ini'))
 
     logger = configurelogger(config)
 
-    directory_source = abspath(config.get('DEFAULT', 'directory_source'))
     file_state = abspath(config.get('DEFAULT', 'file_state'))
     personal_word_list = abspath(config.get('DEFAULT', 'personal_word_list'))
     spelling_language = config.get('DEFAULT', 'spelling_language')
 
-    if not verifydirectorysource(directory_source):
-        sys.exit(1)
-
     pwl = loadpwl(personal_word_list)
-
-    filenameslist = getfilenameslist(directory_source)
 
     errortotalprev = 0
     try:
@@ -119,7 +120,7 @@ def main():
         logger.warning('JSON score file "%s" was not found', file_state)
 
     mspell = MarkSpelling(pwl, spelling_language, errortotalprev)
-    errortotal = mspell.checkfilelist(filenameslist)
+    errortotal = mspell.checkfilelist(args.paths)
     passed = errortotalfunct(errortotal, errortotalprev, file_state)
     if not passed:
         sys.exit(1)
