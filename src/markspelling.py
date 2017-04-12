@@ -39,7 +39,7 @@ class MarkSpelling(object):
             return not incodeblock
         return incodeblock
 
-    def checkline(self, line, linenumber, incodeblock=False):
+    def checkline(self, line, linenumber, filename, incodeblock=False):
         line = line.strip()
         errorcount = 0
         wasincodeblock = incodeblock
@@ -53,17 +53,17 @@ class MarkSpelling(object):
                 self.logger.debug("'%s' not found in main dictionary", err.word)
                 if not self.pwl or not self.pwl.check(err.word):
                     errorcount += 1
-                    self.logger.info('%s : "%s"', linenumber, err.word)
+                    self.logger.error('%s:%s "%s"', filename, linenumber, err.word)
         else:
             self.logger.debug('Skipping line "%s"', line.rstrip())
 
         return (errorcount, incodeblock)
 
-    def checklinelist(self, linelist):
+    def checklinelist(self, linelist, filename):
         errorcount = 0
         incodeblock = False
         for linenumber, line in enumerate(linelist):
-            (lineerrors, incodeblock) = self.checkline(line, linenumber, incodeblock)
+            (lineerrors, incodeblock) = self.checkline(line, linenumber, filename, incodeblock)
             errorcount += lineerrors
         return errorcount
 
@@ -72,7 +72,7 @@ class MarkSpelling(object):
         fileerrors = 0
         with codecs.open(filename, 'r', encoding='UTF-8') as markdownfile:
             lines = markdownfile.readlines()
-            fileerrors = self.checklinelist(lines)
+            fileerrors = self.checklinelist(lines, filename)
         self.logger.info('%d errors in total in %s', fileerrors, filename)
         return fileerrors
 
