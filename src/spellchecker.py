@@ -108,7 +108,7 @@ def main():
     logger = configurelogger(config, args)
 
     file_state = abspath(config.get('DEFAULT', 'file_state'))
-    check_state = bool(config.get('DEFAULT', 'check_state'))
+    check_state = config.get('DEFAULT', 'check_state').lower() == 'true'
     personal_word_list = abspath(config.get('DEFAULT', 'personal_word_list'))
     spelling_language = config.get('DEFAULT', 'spelling_language')
 
