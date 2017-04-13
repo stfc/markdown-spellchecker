@@ -62,7 +62,8 @@ class MarkSpelling(object):
         for word in errorwords:
             errorline = errorline.replace(word, '\033[1;31m' + word + '\033[30m')
 
-        self.logger.error('%s:%4d |%s', filename, linenumber, '\033[1;30m' + errorline + '\033[0m')
+        if errorwords:
+            self.logger.error('%s:%4d |%s', filename, linenumber, '\033[1;30m' + errorline + '\033[0m')
 
         return (errorcount, incodeblock)
 
