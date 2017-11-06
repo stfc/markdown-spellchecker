@@ -70,7 +70,7 @@ class MarkSpelling(object):
     def checklinelist(self, linelist, filename):
         errorcount = 0
         incodeblock = False
-        for linenumber, line in enumerate(linelist):
+        for linenumber, line in enumerate(linelist, start=1):
             (lineerrors, incodeblock) = self.checkline(line, linenumber, filename, incodeblock)
             errorcount += lineerrors
         return errorcount
