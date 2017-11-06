@@ -17,7 +17,9 @@
 import unittest
 import logging
 import tempfile
+import enchant
 from os import rmdir
+from os.path import join, dirname, realpath
 from spellchecker import abspath, verifydirectorysource, getfilenameslist
 from markspelling import MarkSpelling
 
@@ -29,7 +31,8 @@ class TestFuncts(unittest.TestCase):
         """Create a shared markspell instance to use for testing"""
         logging.basicConfig(level=logging.CRITICAL, format='%(levelname)6s: %(message)s')
         self.logger = logging.getLogger('markdown-spellchecker')
-        self.markspell = MarkSpelling(None)
+        pwl = enchant.request_pwl_dict(join(dirname(realpath(__file__)), 'dict.txt'))
+        self.markspell = MarkSpelling(pwl)
 
     def test_abspath(self):
         """
