@@ -18,6 +18,15 @@ from logging import getLogger
 from enchant.checker import SpellChecker
 from enchant.tokenize import EmailFilter, URLFilter
 
+# Format string used to render debug output
+_DEBUG_FORMAT = '%03d %5s %s%s%s'
+
+# ANSI color escape codes for highlighting debug output
+_ANSI_GRAY = '\033[1;30m'
+_ANSI_YELLOW = '\033[1;33m'
+_ANSI_RED = '\033[1;31m'
+_ANSI_BLUE = '\033[1;34m'
+_ANSI_RESET = '\033[0m'
 
 class MarkSpelling(object):
     """
@@ -32,7 +41,9 @@ class MarkSpelling(object):
         self.errortotalprev = errortotalprev
         self.errortotal = 0
         self.regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
-        self.regexhtmlclean = re.compile(r'\`.*?\`')
+        self.regexhtmlclean = re.compile(r'\`.+?\`')
+        self.regexlink = re.compile(r'\[(.+?)\]\(.+?\)')
+        self.regexurl = re.compile(r'https?://\S+')
 
     def checkcodeblock(self, line, incodeblock):
         if line.startswith('```') or line == '---':
@@ -47,30 +58,35 @@ class MarkSpelling(object):
         incodeblock = self.checkcodeblock(line, incodeblock)
         errorwords = list()
         if not wasincodeblock and not incodeblock:
-            self.logger.debug('Checking line "%s"', line.rstrip())
+            self.logger.debug(_DEBUG_FORMAT, linenumber, 'RAW', _ANSI_GRAY, line, _ANSI_RESET)
             line = self.regexhtmldirty.sub('', line)  # strip html tags
             line = self.regexhtmlclean.sub('', line)  # strip inline code
+            line = self.regexlink.sub(r'\1', line)  # strip links
+            line = self.regexurl.sub('', line)  # strip URLs
+            line = line.strip()
+            self.logger.debug(_DEBUG_FORMAT, linenumber, 'CLEAN', '', line, '')
             self.spellcheck.set_text(line)
             for err in self.spellcheck:
-                self.logger.debug("'%s' not found in main dictionary", err.word)
+                self.logger.debug(_DEBUG_FORMAT, linenumber, 'WARN', _ANSI_YELLOW, "'%s' not found in main dictionary" % err.word, _ANSI_RESET)
                 if not self.pwl or not self.pwl.check(err.word):
+                    self.logger.debug(_DEBUG_FORMAT, linenumber, 'ERROR', _ANSI_RED, "'%s' not found in custom dictionary" % err.word, _ANSI_RESET)
                     errorcount += 1
                     errorwords.append(err.word)
         else:
-            self.logger.debug('Skipping line "%s"', line.rstrip())
+            self.logger.debug(_DEBUG_FORMAT, linenumber, 'CODE', _ANSI_BLUE, line, _ANSI_RESET)
 
         for word in errorwords:
-            errorline = errorline.replace(word, '\033[1;31m' + word + '\033[30m')
+            errorline = errorline.replace(word, _ANSI_RED + word + _ANSI_GRAY)
 
         if errorwords:
-            self.logger.error('%s:%4d |%s', filename, linenumber, '\033[1;30m' + errorline + '\033[0m')
+            self.logger.error('%s:%4d |%s', filename, linenumber, _ANSI_GRAY + errorline + _ANSI_RESET)
 
         return (errorcount, incodeblock)
 
     def checklinelist(self, linelist, filename):
         errorcount = 0
         incodeblock = False
-        for linenumber, line in enumerate(linelist):
+        for linenumber, line in enumerate(linelist, start=1):
             (lineerrors, incodeblock) = self.checkline(line, linenumber, filename, incodeblock)
             errorcount += lineerrors
         return errorcount
