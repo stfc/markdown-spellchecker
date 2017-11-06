@@ -47,17 +47,19 @@ class MarkSpelling(object):
         incodeblock = self.checkcodeblock(line, incodeblock)
         errorwords = list()
         if not wasincodeblock and not incodeblock:
-            self.logger.debug('Checking line "%s"', line.rstrip())
+            self.logger.debug('%03d %5s \033[1;30m%s\033[0m', linenumber, 'RAW', line.rstrip())
             line = self.regexhtmldirty.sub('', line)  # strip html tags
             line = self.regexhtmlclean.sub('', line)  # strip inline code
+            self.logger.debug('%03d %5s %s', linenumber, 'CLEAN', line.rstrip())
             self.spellcheck.set_text(line)
             for err in self.spellcheck:
-                self.logger.debug("'%s' not found in main dictionary", err.word)
+                self.logger.debug("%03d %5s \033[1;33m'%s' not found in main dictionary\033[0m", linenumber, 'WARN', err.word)
                 if not self.pwl or not self.pwl.check(err.word):
+                    self.logger.debug("%03d %5s \033[1;31m'%s' not found in custom dictionary\033[0m", linenumber, 'ERROR', err.word)
                     errorcount += 1
                     errorwords.append(err.word)
         else:
-            self.logger.debug('Skipping line "%s"', line.rstrip())
+            self.logger.debug('%03d %5s \033[1;34m%s\033[0m', linenumber, 'CODE', line.rstrip())
 
         for word in errorwords:
             errorline = errorline.replace(word, '\033[1;31m' + word + '\033[30m')
