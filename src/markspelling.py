@@ -32,7 +32,9 @@ class MarkSpelling(object):
         self.errortotalprev = errortotalprev
         self.errortotal = 0
         self.regexhtmldirty = re.compile(r'\<(?!\!--)(.*?)\>')
-        self.regexhtmlclean = re.compile(r'\`.*?\`')
+        self.regexhtmlclean = re.compile(r'\`.+?\`')
+        self.regexlink = re.compile(r'\[(.+?)\]\(.+?\)')
+        self.regexurl = re.compile(r'https?://\S+')
 
     def checkcodeblock(self, line, incodeblock):
         if line.startswith('```') or line == '---':
@@ -50,6 +52,9 @@ class MarkSpelling(object):
             self.logger.debug('%03d %5s \033[1;30m%s\033[0m', linenumber, 'RAW', line.rstrip())
             line = self.regexhtmldirty.sub('', line)  # strip html tags
             line = self.regexhtmlclean.sub('', line)  # strip inline code
+            line = self.regexlink.sub(r'\1', line)  # strip links
+            line = self.regexurl.sub('', line)  # strip URLs
+            line = line.strip()
             self.logger.debug('%03d %5s %s', linenumber, 'CLEAN', line.rstrip())
             self.spellcheck.set_text(line)
             for err in self.spellcheck:
