@@ -94,6 +94,16 @@ class TestFuncts(unittest.TestCase):
         self.assertEqual(self.markspell.checkline('Ignore <asd>bad tags</fgh>', 0, 'testcase.md', False), (0, False))
         self.assertEqual(self.markspell.checkline('Evrething <qwe>esle mattters</rty>', 0, 'testcase.md', False), (3, False))
 
+    def test_checkline_link(self):
+        """Test that link targets are ignored, but that spelling errors in the link are caught"""
+        self.assertEqual(self.markspell.checkline('This is a [good link](/bad/wurdz/ok/heer.tho)', 0, 'testcase.md', False), (0, False))
+        self.assertEqual(self.markspell.checkline('This link features [pooor speling](/bad/wurdz/ok/heer.tho)', 0, 'testcase.md', False), (2, False))
+
+    def test_liquid(self):
+        """Test that the contents of liquid tags and objects are ignored"""
+        self.assertEqual(self.markspell.checkline('This {% shood %} be fine', 0, 'testcase.md', False), (0, False))
+        self.assertEqual(self.markspell.checkline('Also {{ thees un }}', 0, 'testcase.md', False), (0, False))
+
     def test_checklinelist(self):
         """Check a list of lines for correct behaviour"""
         lines = [

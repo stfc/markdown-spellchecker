@@ -44,6 +44,10 @@ class MarkSpelling(object):
         self.regexhtmlclean = re.compile(r'\`.+?\`')
         self.regexlink = re.compile(r'\[(.+?)\]\(.+?\)')
         self.regexurl = re.compile(r'https?://\S+')
+        self.regexlinkid = re.compile(r'\[\S+\]:\s[^{\s]*')
+        self.regexlinkparam = re.compile(r'{:\S+="\S+"}')
+        self.regexliquidtag = re.compile(r'{%.+%}')
+        self.regexliquidobject = re.compile(r'{{.+}}')
 
     def checkcodeblock(self, line, incodeblock):
         if line.startswith('```') or line == '---':
@@ -61,8 +65,13 @@ class MarkSpelling(object):
             self.logger.debug(_DEBUG_FORMAT, linenumber, 'RAW', _ANSI_GRAY, line, _ANSI_RESET)
             line = self.regexhtmldirty.sub('', line)  # strip html tags
             line = self.regexhtmlclean.sub('', line)  # strip inline code
-            line = self.regexlink.sub(r'\1', line)  # strip links
+            line = self.regexlinkid.sub('', line)  # strip link ids
+            line = self.regexlinkparam.sub('', line)  # strip link params
+            line = self.regexlink.sub(r'\1', line)  # strip basic links
             line = self.regexurl.sub('', line)  # strip URLs
+            # if we were to detect liquid comment blocks, we should do it here
+            line = self.regexliquidtag.sub('', line)  # strip liquid tags
+            line = self.regexliquidobject.sub('', line)  # strip liquid objects
             line = line.strip()
             self.logger.debug(_DEBUG_FORMAT, linenumber, 'CLEAN', '', line, '')
             self.spellcheck.set_text(line)
